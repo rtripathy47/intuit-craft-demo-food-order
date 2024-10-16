@@ -1,0 +1,277 @@
+openapi: 3.0.0
+info:
+  title: Food Ordering System API
+  version: 1.0.0
+  description: API for managing orders, items, restaurants, and strategies in the food ordering system.
+servers:
+  - url: http://localhost:8080
+paths:
+  /orders/place:
+    post:
+      summary: Place a new order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                orderItems:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      itemId:
+                        type: integer
+                        example: 1
+                      quantity:
+                        type: integer
+                        example: 2
+                customerId:
+                  type: integer
+                  example: 123
+      responses:
+        '200':
+          description: Order successfully placed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orderId:
+                    type: integer
+                    example: 456
+        '400':
+          description: Invalid order details
+
+  /orders/{orderId}/status:
+    get:
+      summary: Get order status by order ID
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          description: The ID of the order to retrieve the status for
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Order status retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orderId:
+                    type: integer
+                    example: 456
+                  status:
+                    type: string
+                    example: "Processing"
+        '404':
+          description: Order not found
+
+  /items:
+    post:
+      summary: Add a new item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Pizza"
+                description:
+                  type: string
+                  example: "Delicious cheese pizza"
+      responses:
+        '200':
+          description: Item added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  itemId:
+                    type: integer
+                    example: 1
+        '400':
+          description: Invalid item details
+
+    get:
+      summary: Get all items
+      responses:
+        '200':
+          description: List of items retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    itemId:
+                      type: integer
+                      example: 1
+                    name:
+                      type: string
+                      example: "Pizza"
+                    description:
+                      type: string
+                      example: "Delicious cheese pizza"
+
+  /items/available:
+    get:
+      summary: Get available items with pagination
+      parameters:
+        - in: query
+          name: page
+          required: false
+          schema:
+            type: integer
+            example: 0
+        - in: query
+          name: size
+          required: false
+          schema:
+            type: integer
+            example: 10
+      responses:
+        '200':
+          description: List of available items retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        itemId:
+                          type: integer
+                          example: 1
+                        name:
+                          type: string
+                          example: "Pizza"
+                        description:
+                          type: string
+                          example: "Delicious cheese pizza"
+                  totalElements:
+                    type: integer
+                    example: 100
+                  totalPages:
+                    type: integer
+                    example: 10
+
+  /restaurants/register:
+    post:
+      summary: Register a new restaurant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Joe's Diner"
+                maxCapacity:
+                  type: integer
+                  example: 50
+                rating:
+                  type: number
+                  format: float
+                  example: 4.5
+      responses:
+        '200':
+          description: Restaurant registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  restaurantId:
+                    type: integer
+                    example: 1
+        '400':
+          description: Invalid restaurant details
+
+  /restaurants/{restaurantId}/menu:
+    put:
+      summary: Update restaurant menu
+      parameters:
+        - in: path
+          name: restaurantId
+          required: true
+          description: The ID of the restaurant to update
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                itemId:
+                  type: integer
+                  example: 1
+                price:
+                  type: number
+                  format: float
+                  example: 9.99
+      responses:
+        '200':
+          description: Menu updated successfully
+        '404':
+          description: Restaurant not found
+        '400':
+          description: Invalid menu details
+
+  /api/strategies/current:
+    get:
+      summary: Retrieve the current selection strategy
+      responses:
+        '200':
+          description: Current strategy retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "LowerCostStrategy"
+
+    put:
+      summary: Update the current selection strategy
+      parameters:
+        - in: query
+          name: strategyName
+          required: true
+          description: The name of the new strategy
+          schema:
+            type: string
+            example: "HigherRatingStrategy"
+      responses:
+        '200':
+          description: Strategy updated successfully
+        '400':
+          description: Invalid strategy name
+
+  /api/strategies:
+    get:
+      summary: Retrieve all available strategies
+      responses:
+        '200':
+          description: List of strategies retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  example: "LowerCostStrategy"
